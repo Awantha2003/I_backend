@@ -92,11 +92,25 @@ TOKEN=$(curl -s -X POST http://localhost:5000/api/auth/login -H "Content-Type: a
 curl "http://localhost:5000/api/products?search=maggi" -H "Authorization: Bearer $TOKEN"
 ```
 
+## Deployment (Netlify)
+
+`netlify/functions/api.mjs` runs the same Express app as a Netlify Function, and `netlify.toml` configures it.
+
+```bash
+netlify link                                  # or: netlify sites:create
+netlify env:set JWT_SECRET <long-random-string> --secret
+netlify deploy --prod
+```
+
+Because the store is in memory, data on the live demo resets whenever the function instance restarts. To keep data, replace `src/data/store.js` with a database.
+
 ## Project structure
 
 ```
+netlify/functions/api.mjs  Netlify Function wrapper for the live demo
 src/
-  index.js            App setup, routes, error handlers
+  app.js              Express app: routes, error handlers
+  index.js            Local server entry point (loads .env, listens on PORT)
   data/store.js       In-memory users and seeded products
   middleware/auth.js  JWT check for protected routes
   routes/auth.js      /api/auth/signup, /api/auth/login
